@@ -1,0 +1,49 @@
+name: NODO iOS unsigned build
+on:
+  workflow_dispatch:
+  push:
+    branches: [nodo-ios-cloud]
+    paths:
+      - 'NODO/**'
+      - 'NODO.xcodeproj/**'
+      - 'scripts/**'
+      - '.github/workflows/ios-build.yml'
+permissions:
+  contents: read
+concurrency:
+  group: nodo-ios-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode 16.4
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+      - name: Compile device app and package unsigned IPA
+        run: bash scripts/build-ios.sh
+      - name: Compile simulator app
+        run: |
+          set -o pipefail
+          xcodebuild -project NODO.xcodeproj -scheme NODO -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/Simulator CODE_SIGNING_ALLOWED=NO build \
+            2>&1 | tee build/simulator-build.log
+      - name: Upload unsigned device artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: NODO-iOS-unsigned
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NODO-build-logs
+          path: |
+            build/*build.log
+            build/xcode-version.txt
+          if-no-files-found: warn
+          retention-days: 30
