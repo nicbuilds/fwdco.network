@@ -33,7 +33,7 @@ python3 scripts/validate-signature.py "$APP"
 codesign --force --sign - --identifier help.nodo.mobile --timestamp=none \
   --entitlements build/empty-entitlements.plist --generate-entitlement-der build/ResignCheck.app
 codesign --verify --deep --strict --verbose=4 build/ResignCheck.app 2>&1 | tee -a build/signature-build.log
-python3 scripts/package-classic.py "$APP" dist/NODO-1.0-build3-AltStore-Classic.ipa
+python3 scripts/package-classic.py "$APP" dist/NODO-1.0-build4-AltStore-Classic.ipa
 shasum -a 256 dist/*.ipa > dist/SHA256SUMS.txt
 cp build/xcode-version.txt dist/
 cp build/signature-build.log dist/

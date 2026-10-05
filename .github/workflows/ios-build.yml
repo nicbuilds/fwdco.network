@@ -7,6 +7,7 @@ on:
       - 'NODO/**'
       - 'NODO.xcodeproj/**'
       - 'scripts/**'
+      - 'server/**'
       - '.github/workflows/ios-build.yml'
 permissions:
   contents: read
@@ -23,6 +24,8 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
       - name: Compile and validate AltStore Classic IPA
         run: bash scripts/build-ios.sh
+      - name: Validate InvoicePlane bridge PHP
+        run: php -l server/application/modules/nodo_api/controllers/Nodo_api.php
       - name: Compile simulator app
         run: |
           set -o pipefail

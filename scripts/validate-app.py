@@ -5,7 +5,7 @@ with (app / 'Info.plist').open('rb') as stream:
     info = plistlib.load(stream)
 assert info['CFBundleIdentifier'] == 'help.nodo.mobile', info
 assert info['CFBundleShortVersionString'] == '1.0', info
-assert info['CFBundleVersion'] == '3', info
+assert info['CFBundleVersion'] == '4', info
 assert set(info['UIDeviceFamily']) == {1, 2}, info
 assert info['MinimumOSVersion'] == '16.0', info
 assert info['CFBundleSupportedPlatforms'] == ['iPhoneOS'], info
