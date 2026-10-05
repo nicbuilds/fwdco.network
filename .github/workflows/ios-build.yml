@@ -24,6 +24,10 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
       - name: Compile and validate AltStore Classic IPA
         run: bash scripts/build-ios.sh
+      - name: Set up PHP for bridge validation
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
       - name: Validate InvoicePlane bridge PHP
         run: php -l server/application/modules/nodo_api/controllers/Nodo_api.php
       - name: Compile simulator app
