@@ -1,6 +1,13 @@
 name: NODO iOS AltStore Classic build
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'NODO/**'
+      - 'NODO.xcodeproj/**'
+      - 'scripts/**'
+      - 'server/**'
+      - '.github/workflows/ios-build.yml'
   push:
     branches: [nodo-ios-cloud]
     paths:
