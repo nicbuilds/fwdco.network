@@ -1,4 +1,4 @@
-name: NODO iOS unsigned build
+name: NODO iOS AltStore Classic build
 on:
   workflow_dispatch:
   push:
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Select Xcode 16.4
         run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-      - name: Compile device app and package unsigned IPA
+      - name: Compile and validate AltStore Classic IPA
         run: bash scripts/build-ios.sh
       - name: Compile simulator app
         run: |
@@ -30,10 +30,10 @@ jobs:
             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build/Simulator CODE_SIGNING_ALLOWED=NO build \
             2>&1 | tee build/simulator-build.log
-      - name: Upload unsigned device artifacts
+      - name: Upload AltStore Classic IPA
         uses: actions/upload-artifact@v4
         with:
-          name: NODO-iOS-unsigned
+          name: NODO-AltStore-Classic
           path: dist/
           if-no-files-found: error
           retention-days: 30
