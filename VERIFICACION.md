@@ -1,20 +1,40 @@
-# Verificación · 5 octubre 2026
+# NODO 1.0 build 3 · AltStore Classic
 
-**Compilación real completada correctamente**, tanto Release para dispositivo iOS como Debug para simulador, en GitHub Actions con Xcode 16.4 (16F6).
+## Qué cambia
 
-- Ejecución: https://github.com/nicbuilds/fwdco.network/actions/runs/37354429421
-- Commit compilado: `b73134b167bad252277d4df082d5f83ceb753278`.
-- Job: `111913123088`.
-- Ambos registros contienen `BUILD SUCCEEDED`.
-- Validación del producto: `help.nodo.mobile`, versión 1.0, build 2, arm64, mínimo 16.0, familia de dispositivos [1, 2].
-- iPad declara las cuatro orientaciones.
-- IPA inspeccionado después de descargarlo: contiene un ejecutable de dispositivo real (322320 bytes), sin perfil de aprovisionamiento ni directorio de firma.
-- SHA-256 IPA: `1f6b44b1c01216a258b75e8473ec8eb9b6c404932cc0f4e35749edebec5b3d39`.
+Se conserva íntegro NODOApp.swift y su funcionalidad. Se incrementa CFBundleVersion a 3. Bundle Identifier help.nodo.mobile, versión 1.0, deployment target 16.0 y UIDeviceFamily [1,2] permanecen iguales.
 
-No se encontraron errores de compilación. El código Swift es idéntico al de NODO-iOS-v1.0.zip. Se cambiaron únicamente ajustes de empaquetado: build 2, orientaciones de iPad, exclusión explícita de Catalyst y declaración de cifrado estándar. Se añadieron scripts de build, validación, workflow y documentación. Los portales y su funcionalidad permanecen iguales.
+Esta variante incorpora una firma **ad hoc local** completa, no una firma Apple de desarrollo. La firma sella el ejecutable y los recursos, incluye un diccionario de entitlements vacío y puede ser reemplazada por AltStore Classic/AltServer. No solicita App Groups, iCloud, notificaciones push, permisos privados, keychain groups ni un Team ID ajeno.
 
-Aviso no bloqueante de Xcode: se omitió extracción de metadatos AppIntents porque la app no depende de AppIntents. No afecta a las funciones existentes. GitHub también informó migración del runtime Node de sus acciones; el job terminó correctamente.
+No se incorpora embedded.mobileprovision: el perfil válido lo debe emitir Apple para la cuenta y dispositivo del usuario durante la instalación. Fabricar un perfil, copiar uno ajeno o incluir uno vencido no resolvería ese requisito.
 
-El artefacto entregado es previo a firma. Falta exclusivamente la firma y aprovisionamiento con una cuenta Apple mediante AltStore/AltServer, instalación y prueba en tus dispositivos. No se han probado las cuentas autenticadas ni el comportamiento en hardware físico.
+Info.plist se normaliza a XML antes de firmar. El IPA usa ZIP estándar, contiene únicamente Payload/NODO.app, conserva 0755 en el ejecutable y omite AppleDouble, atributos extendidos y entradas Zip64. No hay extensiones ni frameworks embebidos que requieran firmas adicionales.
 
-Los logs originales están en `logs/`. El ZIP exterior incluye el IPA, el ZIP de la .app, SHA256SUMS y la guía. Los fuentes completos y workflow están conservados en la rama `nodo-ios-cloud`; la web en `main` no se modificó. No fusionar esa rama en main: tiene un árbol independiente para la app.
+## Validaciones automatizadas
+
+El workflow ejecuta compilación Release para dispositivo y Debug para simulador; inspecciona versión, plataforma, arm64, mínimo 16.0 y familia iPhone/iPad. Después:
+
+- codesign --verify --deep --strict sobre el bundle completo.
+- Lectura de LC_CODE_SIGNATURE y CodeDirectory ad hoc.
+- Comprobación de binario no cifrado y entitlements XML vacíos en el slot que lee AltSign.
+- Lectura de entitlements por codesign y comparación con un diccionario vacío.
+- Re-firma ad hoc de una copia y nueva verificación estricta, sin modificar el producto entregado.
+- Comprobación de integridad, rutas y permisos del ZIP.
+
+Estas pruebas verifican la estructura, firma ad hoc y capacidad de reemplazarla localmente. **No equivalen a una instalación probada con AltStore y una cuenta Apple gratuita.** Esa prueba exige la cuenta del usuario y su dispositivo.
+
+Ejecución: https://github.com/nicbuilds/fwdco.network/actions/runs/37361738104
+Commit: 0088c0e438f636b36cca1402f6262c1070ca858e
+
+## Sobre AltServer.ServerError 2005
+
+La documentación oficial lo define como una solicitud inválida recibida por AltServer y recomienda actualizar AltServer. No demuestra que un IPA unsigned sea la causa. El build 2 tenía Mach-O e Info.plist válidos y no tenía firma. Esta nueva variante añade una firma estructural completa para eliminar esa variable; no se puede prometer que corrija un fallo del protocolo cliente-servidor.
+
+Referencia: https://faq.altstore.io/altstore-classic/error-codes
+Revisión del código: https://github.com/rileytestut/AltServer-Windows/blob/master/AltSign/Application.cpp
+
+## Instalación
+
+Actualiza AltServer Windows y AltStore Classic a sus versiones oficiales actuales. Abre AltStore Classic → My Apps → + y selecciona NODO-1.0-build3-AltStore-Classic.ipa con AltServer disponible. Alternativamente, desde Windows, Shift + clic en AltServer → Sideload .ipa… permite probar la instalación directa por USB.
+
+AltStore sustituirá la firma ad hoc por una firma de desarrollo y añadirá el perfil de tu cuenta. Si vuelve a aparecer 2005, conserva el detalle completo del error y las versiones de AltServer/AltStore; el paquete no puede corregir una incompatibilidad de comunicación entre ellos.

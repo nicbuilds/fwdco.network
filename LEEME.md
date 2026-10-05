@@ -2,9 +2,9 @@
 
 ## Archivo que debes instalar
 
-`NODO-1.0-build2-unsigned.ipa` es el paquete de dispositivo previo a firma. Contiene `Payload/NODO.app`, compilado para arm64. No se instala tocándolo desde Archivos: AltStore/AltServer debe firmarlo con tu cuenta Apple y generar el perfil de tu dispositivo. No necesitas proporcionar claves de Apple a GitHub ni a ChatGPT.
+`NODO-1.0-build3-AltStore-Classic.ipa` es el paquete de dispositivo previo a firma. Contiene `Payload/NODO.app`, compilado para arm64. No se instala tocándolo desde Archivos: AltStore/AltServer debe firmarlo con tu cuenta Apple y generar el perfil de tu dispositivo. No necesitas proporcionar claves de Apple a GitHub ni a ChatGPT.
 
-`NODO-1.0-build2-unsigned.app.zip` contiene la misma aplicación compilada antes de empaquetarla como IPA. No selecciones este ZIP en AltStore.
+El IPA tiene una firma ad hoc completa con entitlements vacíos para sustituirla durante la instalación. No incluye un perfil de aprovisionamiento ajeno. Consulta VERIFICACION.md para conocer las comprobaciones y el alcance de la prueba.
 
 ## Configuración
 
@@ -12,7 +12,7 @@
 |---|---|
 | Bundle Identifier del proyecto | `help.nodo.mobile` |
 | Versión | `1.0` |
-| Build | `2` |
+| Build | `3` |
 | Mínimo | iOS / iPadOS 16.0 |
 | Dispositivos | iPhone e iPad (`UIDeviceFamily` 1 y 2) |
 | Arquitectura del dispositivo | arm64 |
@@ -33,12 +33,12 @@ AltStore puede adaptar el identificador para tu equipo de firma; conserva la mis
 
 **Ruta AltStore, útil para renovar después:**
 
-1. Guarda `NODO-1.0-build2-unsigned.ipa` en Archivos del iPhone, por ejemplo mediante iCloud Drive desde Windows.
+1. Guarda `NODO-1.0-build3-AltStore-Classic.ipa` en Archivos del iPhone, por ejemplo mediante iCloud Drive desde Windows.
 2. Mantén AltServer abierto en la PC y ambos dispositivos en la misma red; para la primera instalación conserva además el cable USB.
 3. Abre AltStore Classic, inicia sesión con la misma cuenta Apple si se solicita y entra a **My Apps → +**. Selecciona el IPA.
 4. Espera a que AltStore termine de firmar e instalar. Abre NODO e inicia sesión por separado en cada portal.
 
-**Ruta directa desde Windows:** mantén pulsada **Shift** al hacer clic en el icono de AltServer. Elige **Sideload .ipa…**, selecciona tu dispositivo y `NODO-1.0-build2-unsigned.ipa`; completa el acceso Apple solicitado. AltServer firma e instala desde la PC. Esta función está documentada en las [notas oficiales de AltServer](https://faq.altstore.io/release-notes/altserver). Para renovar cómodamente dentro de AltStore, usa la primera ruta; no dependas de que una instalación directa aparezca automáticamente en My Apps.
+**Ruta directa desde Windows:** mantén pulsada **Shift** al hacer clic en el icono de AltServer. Elige **Sideload .ipa…**, selecciona tu dispositivo y `NODO-1.0-build3-AltStore-Classic.ipa`; completa el acceso Apple solicitado. AltServer firma e instala desde la PC. Esta función está documentada en las [notas oficiales de AltServer](https://faq.altstore.io/release-notes/altserver). Para renovar cómodamente dentro de AltStore, usa la primera ruta; no dependas de que una instalación directa aparezca automáticamente en My Apps.
 
 No se requiere jailbreak, certificado empresarial ni activar AltJIT.
 
@@ -56,9 +56,9 @@ Si aparece “Could not find AltServer”, prueba USB, verifica que AltServer es
 
 Rama independiente: https://github.com/nicbuilds/fwdco.network/tree/nodo-ios-cloud
 
-La rama contiene solo el proyecto iOS. No fusionarla en `main`: `main` sigue siendo la web. El workflow `.github/workflows/ios-build.yml` compila dispositivo y simulador, valida el binario y publica el IPA sin firma junto con logs y SHA-256. No contiene secretos ni pasos de publicación en App Store.
+La rama contiene solo el proyecto iOS. No fusionarla en `main`: `main` sigue siendo la web. El workflow `.github/workflows/ios-build.yml` compila dispositivo y simulador, valida el binario y publica el IPA con firma ad hoc junto con logs y SHA-256. No contiene secretos ni pasos de publicación en App Store.
 
-Para repetir el build existente desde Windows: abre el enlace de la ejecución indicado en `VERIFICACION.md`, inicia sesión en GitHub y usa **Re-run all jobs**. Al terminar, descarga el artefacto **NODO-iOS-unsigned** y descomprime el ZIP exterior. También se ejecuta automáticamente cuando cambian los archivos de build o código en `nodo-ios-cloud`. `workflow_dispatch` está preparado, pero el botón manual puede no aparecer mientras el workflow no exista en la rama por defecto; no cambies ni fusiones la rama de la web para resolverlo.
+Para repetir el build existente desde Windows: abre el enlace de la ejecución indicado en `VERIFICACION.md`, inicia sesión en GitHub y usa **Re-run all jobs**. Al terminar, descarga el artefacto **NODO-AltStore-Classic** y descomprime el ZIP exterior. También se ejecuta automáticamente cuando cambian los archivos de build o código en `nodo-ios-cloud`. `workflow_dispatch` está preparado, pero el botón manual puede no aparecer mientras el workflow no exista en la rama por defecto; no cambies ni fusiones la rama de la web para resolverlo.
 
 El build tiene un límite de 20 minutos y conserva artefactos 30 días. Los registros identifican la versión de Xcode usada. Si GitHub cambia su imagen y retira Xcode 16.4, habrá que actualizar la selección; el build falla de forma visible en lugar de usar silenciosamente otro compilador.
 
