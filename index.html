@@ -128,11 +128,18 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:950px){.logo{width:180px}}
 @media(max-width:720px){.logo{width:178px}.brand-well{padding:6px 0}}
 @media(max-width:360px){.logo{width:150px}}
+
+/* RADIX Consultores: original PNG, grayscale photography and reading progress. */
+header{isolation:isolate;--reading-progress:0;background:#EDEDED}
+header::before{content:"";position:absolute;inset:0;z-index:-1;background:#FFCC00;transform:scaleX(var(--reading-progress));transform-origin:left center;pointer-events:none;will-change:transform}
+.logo{aspect-ratio:1387/441}
+.logo img{position:absolute;width:120.548%;max-width:none;height:auto;left:-10.31%;top:-61.224%}
+main img,.project-cover img{filter:grayscale(1)}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header><div class="wrap nav"><a class="brand-well" href="#home" aria-label="RADIX"><span class="logo"><img src="assets/radix-logo-transparent.png" alt="RADIX" width="1774" height="887" fetchpriority="high"></span></a><button class="menu" type="button" aria-expanded="false" aria-controls="navigation" hidden>Menu</button><nav class="links" id="navigation" aria-label="Main navigation"><a href="#projects">Projects</a><a href="#technical">Technical studies</a><a href="#experience">Experience</a><a href="#contact">Contact</a><a class="language" href="index-es.html" lang="es">ES</a></nav></div></header>
+<header><div class="wrap nav"><a class="brand-well" href="#home" aria-label="RADIX Consultores"><span class="logo"><img src="assets/radix-consultores.png" alt="RADIX Consultores" width="1672" height="941" fetchpriority="high"></span></a><button class="menu" type="button" aria-expanded="false" aria-controls="navigation" hidden>Menu</button><nav class="links" id="navigation" aria-label="Main navigation"><a href="#projects">Projects</a><a href="#technical">Technical studies</a><a href="#experience">Experience</a><a href="#contact">Contact</a><a class="language" href="index-es.html" lang="es">ES</a></nav></div></header>
 <main id="main"><section class="hero" id="home"><div class="wrap hero-grid"><div class="hero-copy"><h1>Environmental consulting projects</h1><p>Preparation and technical integration of environmental impact studies and complementary documentation for housing, real estate, commercial and service projects in Yucatán.</p><div class="actions"><a class="button" href="#projects">View projects</a><a href="#contact">Discuss a project</a></div></div><nav class="hero-topics" aria-label="Explore sections"><a href="#projects">Projects</a><a href="#technical">Technical studies</a><a href="#gis">Cartography &amp; GIS</a></nav></div></section>
 <section class="section" id="portfolio"><div class="wrap">
 <div class="portfolio-heading"><h2 id="portfolio-heading">Environmental consulting projects</h2><div class="carousel-controls" hidden><button class="carousel-control" type="button" data-carousel-prev aria-controls="project-track" aria-label="Previous project">&#8592;</button><span class="carousel-status" id="project-position" role="status" aria-live="polite" aria-atomic="true">1 / 4</span><button class="carousel-control" type="button" data-carousel-next aria-controls="project-track" aria-label="Next project">&#8594;</button></div></div>
@@ -255,6 +262,26 @@ const chatForm=document.querySelector('#assistant-form'),chatLog=document.queryS
 function message(text,who){const p=document.createElement('p');p.className=who+'-message';p.textContent=(who==='user'?'You: ':'Assistant: ')+text;chatLog.append(p);chatLog.scrollTop=chatLog.scrollHeight}
 chatForm.addEventListener('submit',async e=>{e.preventDefault();const input=document.querySelector('#assistant-query'),button=chatForm.querySelector('button'),query=input.value.trim();if(!query||button.disabled)return;message(query,'user');input.value='';button.disabled=true;chatStatus.textContent='Preparing a response…';const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);try{const res=await fetch('https://k0jmry5lx4.execute-api.us-east-1.amazonaws.com/prod/invoke',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:query,sessionId}),signal:controller.signal});if(!res.ok)throw new Error('Assistant unavailable');const data=await res.json();if(typeof data.response!=='string'||!data.response.trim())throw new Error('Empty response');message(data.response,'agent');chatStatus.textContent=''}catch{chatStatus.textContent='The assistant is unavailable. Please use the project form or email contact@fwdco.net.';input.value=query}finally{clearTimeout(timeout);button.disabled=false}});
 
+})();
+
+// Recalculate when scrolling or when expandable content changes the page height.
+(()=>{
+  const header=document.querySelector('header');
+  const page=document.scrollingElement||document.documentElement;
+  let pending=false;
+  const update=()=>{
+    pending=false;
+    const distance=page.scrollHeight-page.clientHeight;
+    const progress=distance>0?Math.min(1,Math.max(0,page.scrollTop/distance)):0;
+    header.style.setProperty('--reading-progress',progress);
+  };
+  const schedule=()=>{if(!pending){pending=true;requestAnimationFrame(update)}};
+  window.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule,{passive:true});
+  window.addEventListener('pageshow',schedule);
+  window.addEventListener('load',schedule);
+  if('ResizeObserver' in window){new ResizeObserver(schedule).observe(document.body)}
+  update();
 })();
 </script>
 </body>
